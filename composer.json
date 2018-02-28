@@ -1,0 +1,25 @@
+{
+    "name": "apollorip/logchecker",
+    "description": "Logchecker for validating logs generated from supported ripping programs (like EAC and XLD)",
+    "version": "3.0.0",
+    "license": "Unlicense",
+    "type": "library",
+    "authors": [
+        {
+            "name": "itismadness",
+            "email": "itismadness@apollo.rip"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "ApolloRIP\\Logchecker\\": "src/"
+        }
+    },
+    "require": {
+        "php": "^7",
+        "yupmin/php-chardet": "^1.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "6.*"
+    }
+}
