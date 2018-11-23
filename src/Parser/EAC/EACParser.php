@@ -8,21 +8,24 @@ class EACParser extends AbstractParser {
 	protected $program = 'Exact Audio Copy';
 	protected $versions = [
 		"1.3" => "2. September 2016",
-        "1.2" => "12. August 2016",
-        "1.1" => "23. June 2015",
-        "1.0 beta 6" => "9. April 2015",
-        "1.0 beta 5" => "2. April 2015",
-        "1.0 beta 4" => "7. December 2014",
-        "1.0 beta 3" => "29. August 2011",
-        "1.0 beta 2" => "29. April 2011",
-        "1.0 beta 1" => "15. November 2010",
-        "0.99 prebeta 5" => "4. May 2009",
-        "0.99 prebeta 4" => "23. January 2008",
-        "0.99 prebeta 3" => "28. July 2007",
-        "0.99 prebeta 2" => "28 July 2007",
-        "0.99 prebeta 1" => "25. May 2007"
+		"1.2" => "12. August 2016",
+		"1.1" => "23. June 2015",
+		"1.0 beta 6" => "9. April 2015",
+		"1.0 beta 5" => "2. April 2015",
+		"1.0 beta 4" => "7. December 2014",
+		"1.0 beta 3" => "29. August 2011",
+		"1.0 beta 2" => "29. April 2011",
+		"1.0 beta 1" => "15. November 2010",
+		"0.99 prebeta 5" => "4. May 2009",
+		"0.99 prebeta 4" => "23. January 2008",
+		"0.99 prebeta 3" => "28. July 2007",
+		"0.99 prebeta 2" => "28 July 2007",
+		"0.99 prebeta 1" => "25. May 2007"
 	];
 
+	private $pre_99 = false;
+
+	// These identifiers come from string 1274
 	protected $language_identifiers = [
 		'ru' => [
 			'Отчёт EAC об извлечении, выполненном'
@@ -47,6 +50,9 @@ class EACParser extends AbstractParser {
 		],
 		'zh-Hans' => [
 			'EAC 抓取日志文件从'
+		],
+		'se' => [
+			'EAC extraheringsloggfil frĺn'
 		],
 		'sr' => [
 			'EAC-ov fajl dnevnika ekstrakcije iz'
@@ -135,23 +141,79 @@ class EACParser extends AbstractParser {
 				unset($this->logs[$key]);
 			}
 		}
+		$this->logs = array_values($this->logs);
 	}
 
 	protected function parseRipDetails($log_index) {
 		$log =& $this->logs[$log_index];
+		$log = preg_replace('/(\=+\s+Log checksum.*)/i', '<span class="good">$1</span>', $log, 1, $count);
 		if (preg_match('/Exact Audio Copy V(.+) from (.+)/', $log, $matches) === 1) {
 			$version = $matches[1];
 			$version_date = $matches[2];
 			if (isset($this->versions[$version])) {
 				if ($this->versions[$version] !== $version_date) {
-					$this->addDetail('Invalid date for EAC version V'.$version, -30);
+					$this->addDetail('Invalid date for EAC version V'.$version, 30);
 				}
+			}
+			else {
+				$this->addDetail('Unrecognized EAC version V'.$version, 30);
+			}
+
+			$version = floatval(explode(" ", $version)[0]);
+			if ($version < 1) {
+				$this->checksum = false;
+			}
+			elseif ($version >= 1 && $count) {
+				$this->checksum = $this->checksum && true;
+			}
+			else {
+				// Above version 1 and no checksum
+				$this->checksum = false;
 			}
 		}
 		else {
-			$this->addDetail('EAC version older than 0.99', -30);
+			$this->addDetail('EAC version older than 0.99', 30);
+			$this->pre_99 = true;
 			$this->checksum = false;
 		}
+
+		$log = preg_replace('/Exact Audio Copy (.+) from (.+)/i', 'Exact Audio Copy <span class="log1">$1</span> from <span class="log1">$2</span>', $log, 1);
+		$log = preg_replace("/EAC extraction logfile from (.+)\n+(.+)/i", "<span class=\"good\">EAC extraction logfile from <span class=\"log5\">$1</span></span>\n\n<span class=\"log4\">$2</span>", $log, 1, $count);
+		if (!$count) {
+			$this->addDetail('Unrecognized log file, assuming EAC ('.$log_index.')! Feel free to report for manual review.');
+			$this->score = 0;
+		}
+
+		$log = preg_replace_callback('/Read mode( +): ([a-z]+)(.*)?/i', array($this, 'readMode'), $log, 1, $count);
+		if (!$count) {
+			$this->addDetail('Could not verify read mode', 1);
+		}
+
+		$log = preg_replace_callback('/Utilize accurate stream( +): (Yes|No)/i', array($this, 'accurate_stream'), $log, 1, $EAC_ac_stream);
+		$EAC_ac_stream_pre99 = false;
+		if ($this->pre_99) {
+			$log = preg_replace_callback('/, (|NO )accurate stream/i', array($this, 'accurate_stream_eac_pre99'), $log, 1, $EAC_ac_stream_pre99);
+		}
+
+		if (!$EAC_ac_stream && !$EAC_ac_stream_pre99 && !$this->non_secure_mode) {
+			$this->addDetail('Could not verify accurate stream');
+		}
+	}
+
+	private function readMode($matches) {
+		if ($matches[2] == 'Secure') {
+			$class = 'good';
+		}
+		else {
+			$this->secure_mode	= false;
+			$this->non_secure_mode = $matches[2];
+			$class = 'bad';
+		}
+		$str = '<span class="log5">Read mode' . $matches[1] . '</span>: <span class="' . $class . '">' . $matches[2] . '</span>';
+		if ($matches[3]) {
+			$str .= '<span class="log4">' . $matches[3] . '</span>';
+		}
+		return $str;
 	}
 
 	protected function validateChecksum($log_index) {

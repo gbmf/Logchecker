@@ -2,6 +2,8 @@
 
 namespace ApolloRIP\Logchecker\Parser;
 
+use ApolloRIP\Logchecker\Drives;
+
 abstract class AbstractParser {
 	protected $log_path;
 	protected $log;
@@ -18,6 +20,12 @@ abstract class AbstractParser {
 	protected $score = 100;
 	protected $checksum = true;
 	protected $details = [];
+
+	var $secure_mode = true;
+	var $non_secure_mode = null;
+
+	protected $drive_found = false;
+	protected $offsets = [];
 
 
 	public function __construct($log_path, $log) {
@@ -36,7 +44,14 @@ abstract class AbstractParser {
 			$this->addDetail('Combined Logs (' . count($this->logs) . ')', 0, true);
 		}
 		for ($i = 0; $i < count($this->logs); $i++) {
+			$log =& $this->logs[$i];
 			$this->parseRipDetails($i);
+
+			$log = preg_replace_callback("/Used drive( +): (.+)/i", array($this, 'parseDrive'), $log, 1, $count);
+			if (!$count) {
+				$this->addDetail('Could not verify used drive', 1);
+			}
+
 			// $this->getTrackDetails()
 			if ($validate_checksum && $this->checksum) {
 				$this->validateChecksum($i);
@@ -49,24 +64,12 @@ abstract class AbstractParser {
 	abstract protected function parseRipDetails($log_index);
 	abstract protected function validateChecksum($log_index);
 
-	/**
-	 * @param $matches
-	 * @return string
-	 *
-	$Log = preg_replace_callback("/Used drive( +): (.+)/i", array(
-	$this,
-	'drive'
-	), $Log, 1, $Count);
-	if (!$Count) {
-	$this->account('Could not verify used drive', 1);
-	}
-	 */
 	protected function parseDrive($matches) {
 		$fake_drives = array(
 			'Generic DVD-ROM SCSI CdRom Device'
 		);
 		if (in_array(trim($matches[2]), $fake_drives)) {
-			$this->account('Virtual drive used: ' . $matches[2], 20, false, false, false, 20);
+			$this->addDetail('Virtual drive used: ' . $matches[2], 20);
 			return "<span class=\"log5\">Used Drive$matches[1]</span>: <span class=\"bad\">$matches[2]</span>";
 		}
 		$drive_name = $matches[2];
@@ -80,31 +83,33 @@ abstract class AbstractParser {
 		$drive_name = preg_replace('/ Adapter.*$/', '', $drive_name);
 		$search = array_filter(preg_split('/[^0-9a-z]/i', trim($drive_name)), function($elem) { return strlen($elem) > 0; });
 		$search_text = implode("%' AND Name LIKE '%", $search);
-		$DB->query("SELECT Offset, Name FROM drives WHERE Name LIKE '%" . $search_text . "%'");
-		$this->Drives  = $DB->collect('Name');
-		$Offsets	   = array_unique($DB->collect('Offset'));
-		$this->Offsets = $Offsets;
-		foreach ($Offsets as $Key => $Offset) {
-			$StrippedOffset  = preg_replace('/[^0-9]/s', '', $Offset);
-			$this->Offsets[] = $StrippedOffset;
+
+		$drives = Drives::getDrives($search_text);
+		// We add both the offsets as they come from the DB, as well as them stripped of their
+		// leading sign, as some rippers like to strip that sign too.
+		$this->offsets = array_unique($drives);
+		foreach ($this->offsets as $key => $offset) {
+			$StrippedOffset  = preg_replace('/[^0-9]/s', '', $offset);
+			$this->offsets[] = $StrippedOffset;
 		}
-		reset($this->Offsets);
-		if ($DB->record_count() > 0) {
-			$Class			= 'good';
+		reset($this->offsets);
+		if (count($drives)) {
+			$class = 'good';
 			$this->drive_found = true;
-		} else {
-			$Class = 'badish';
+		}
+		else {
+			$class = 'badish';
 			$matches[2] .= ' (not found in database)';
 		}
-		return "<span class=\"log5\">Used Drive$Matches[1]</span>: <span class=\"$Class\">$Matches[2]</span>";
+		return "<span class=\"log5\">Used Drive$matches[1]</span>: <span class=\"$class\">$matches[2]</span>";
 	}
 
-	protected function addDetail($message, $change = 0, $notice = false) {
-		$change = intval($change);
+	protected function addDetail($message, $subtract = 0, $notice = false) {
+		$subtract = intval($subtract);
 		$prepend = ($notice) ? '[Notice] ' : '';
-		$append = ($change !== 0) ? ' ('.(($change > 0) ? '+' : '') . $change . ' point'. ((abs($change) === 1) ? '' : 's') . ')' : '';
+		$append = ($subtract !== 0) ? ' ('.(($subtract < 0) ? '+' : '-') . abs($subtract) . ' point'. ((abs($subtract) === 1) ? '' : 's') . ')' : '';
 		$this->details[] = $prepend . $message . $append;
-		$this->score += $change;
+		$this->score -= $subtract;
 	}
 
 	public function getProgram() {
