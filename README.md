@@ -1,6 +1,13 @@
 Logchecker
 ==========
 
+A fork version from [OPSnet/Logchecker](https://github.com/OPSnet/Logchecker).
+
+This repo delete `console` usage of logchecker, only left the code what I need.
+And it requires PHP 5.5+, instead of PHP 7.0+ in [OPSnet/Logchecker](https://github.com/OPSnet/Logchecker).
+
+------
+
 A CD rip logchecker, used for analyzing the generated logs for any problems that would potentially
 indicate a non-perfect rip was produced. Of course, just because a log doesn't score a perfect 100%
 does not mean that the produced rip isn't bit perfect, it's just less likely. While this library can
@@ -14,7 +21,7 @@ the necessary programs, then we will just skip this external step and assume the
 setting up the necessary programs to validate the checksum, see below for the given program you care about.
 
 ## Requirements
-* PHP 7.0+
+* PHP 5.5+
 
 ## Optional Requirements
 * Python 3.5+
@@ -26,70 +33,7 @@ setting up the necessary programs to validate the checksum, see below for the gi
 $ pip3 install chardet eac-logchecker xld-logchecker
 ```
 
-## Standalone
-### Installation
-Go to our [releases](https://github.com/OPSnet/Logchecker/releases) and grab the logchecker.phar
-file. Download this file, and then it can executed via CLI by running `php logchecker.phar`.
-Alternatively, if you `chmod +x logchecker.phar`, it can be executed directly by doing `./logchecker.phar`.
-
-To install it globally, run:
-```bash
-mv logchecker.phar /usr/local/bin/logchecker
-chmod +x /usr/local/bin/logchecker
-```
-
-### Usage
-```
-$ logchecker --help
-Usage:
-  analyze [options] [--] <file>
-
-Arguments:
-  file                  Log file to analyze
-
-Options:
-      --output          Print the HTML log text
-  -h, --help            Display this help message
-  -q, --quiet           Do not output any message
-  -V, --version         Display this application version
-      --ansi            Force ANSI output
-      --no-ansi         Disable ANSI output
-  -n, --no-interaction  Do not ask any interactive question
-  -file, --out=OUT      File to write HTML log text to
-  -v|vv|vvv, --verbose  Increase the verbosity of messages: 1 for normal output, 2 for more verbose output and 3 for debug
-
-Help:
-  This command analyzes a log file
-
-$ logchecker tests/logs/wgdbcm.log
-Score   : 57
-Checksum: false
-Details :
-    [Notice] Translated log from Русский (Russian) to English.
-    EAC version older than 0.99 (-30 points)
-    Could not verify read mode (-1 point)
-    Could not verify read offset (-1 point)
-    Could not verify null samples
-    Could not verify gap handling (-10 points)
-    Could not verify id3 tag setting (-1 point)
-```
-
-### Code
-```php
-<?php
-
-$logchecker = new OrpheusNET\Logchecker\Logchecker();
-$logchecker->add_file('path/to/file.log');
-list($score, $details, $checksum, $log_text) = $logchecker->parse();
-```
-
-## Library Usage
-### Installation
-```
-$ composer require orpheusnet/logchecker
-```
-
-### Usage
+## Usage
 ```php
 <?php
 
@@ -107,15 +51,4 @@ foreach ($details as $detail) {
     print("  {$detail}\n");
 }
 print("\nLog Text:\n{$log_text}");
-```
-
-## Building
-
-To build your own phar, you can checkout this repository, and then
-run the `bin/compile` script. To do this, run the following commands:
-```bash
-git clone https://github.com/OPSnet/Logchecker
-cd Logchecker
-composer install
-php -d phar.readonly=0 bin/compile
 ```

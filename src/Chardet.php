@@ -2,7 +2,7 @@
 
 namespace OrpheusNET\Logchecker;
 
-use OrpheusNET\Logchecker\Exception\{FileNotFoundException};
+use OrpheusNET\Logchecker\Exception\FileNotFoundException;
 
 class Chardet {
     private $executable = null;

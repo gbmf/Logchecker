@@ -16,11 +16,8 @@
         }
     },
     "require": {
-        "php": ">=7",
+        "php": "^5.5.9|>=7.0.8",
         "ext-mbstring": "*",
-        "symfony/console": "^3.4",
-        "symfony/debug": "^3.4",
         "symfony/yaml": "^3.4"
-    },
-    "bin": ["bin/logchecker"]
+    }
 }
