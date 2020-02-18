@@ -1,5 +1,5 @@
 {
-    "name": "orpheusnet/logchecker",
+    "name": "tongyifan/logchecker",
     "description": "Logchecker for validating logs generated from supported ripping programs (like EAC and XLD)",
     "version": "0.8.6",
     "license": "Unlicense",
