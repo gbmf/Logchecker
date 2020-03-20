@@ -43,12 +43,23 @@ use OrpheusNET\Logchecker\Logchecker;
 
 $logchecker = new Logchecker();
 $logchecker->new_file('/path/to/log/file');
-list($score, $details, $checksum, $log_text) = $logchecker->parse();
+list($score, $details, $checksum_state, $log_text) = $logchecker->parse();
 print('Score: ' . $score . "\n");
-print('Checksum: ' . ($checksum ? 'true' : 'false') . "\n");
+print('Checksum: ' . $checksum_state . "\n");
 print("\nDetails:\n");
 foreach ($details as $detail) {
     print("  {$detail}\n");
 }
 print("\nLog Text:\n{$log_text}");
+```
+
+## Building
+
+To build your own phar, you can checkout this repository, and then
+run the `bin/compile` script. To do this, run the following commands:
+```bash
+git clone https://github.com/OPSnet/Logchecker
+cd Logchecker
+composer install
+php -d phar.readonly=0 bin/compile
 ```
