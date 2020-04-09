@@ -1,2 +1,8 @@
 .idea/
 vendor/
+logchecker.phar
+.DS_Store
+.vscode/
+
+.phpunit.result.cache
+report/
