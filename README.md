@@ -1,5 +1,5 @@
-Logchecker
-==========
+# Logchecker
+
 
 A fork version from [OPSnet/Logchecker](https://github.com/OPSnet/Logchecker).
 
@@ -21,16 +21,17 @@ the necessary programs, then we will just skip this external step and assume the
 setting up the necessary programs to validate the checksum, see below for the given program you care about.
 
 ## Requirements
+
 * PHP 5.5+
 
 ## Optional Requirements
 * Python 3.5+
-* [chardet](https://github.com/chardet/chardet)
+* [cchardet](https://github.com/PyYoshi/cChardet) (or [chardet](https://github.com/chardet/chardet))
 * [eac_logchecker.py](https://github.com/OPSnet/eac_logchecker.py)
 * [xld_logchecker.py](https://github.com/OPSnet/xld_logchecker.py)
 
-```
-$ pip3 install chardet eac-logchecker xld-logchecker
+```bash
+pip3 install chardet eac-logchecker xld-logchecker
 ```
 
 ## Usage
@@ -57,6 +58,7 @@ print("\nLog Text:\n{$log_text}");
 
 To build your own phar, you can checkout this repository, and then
 run the `bin/compile` script. To do this, run the following commands:
+
 ```bash
 git clone https://github.com/OPSnet/Logchecker
 cd Logchecker
