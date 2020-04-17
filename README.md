@@ -25,13 +25,14 @@ setting up the necessary programs to validate the checksum, see below for the gi
 * PHP 5.5+
 
 ## Optional Requirements
+
 * Python 3.5+
 * [cchardet](https://github.com/PyYoshi/cChardet) (or [chardet](https://github.com/chardet/chardet))
 * [eac_logchecker.py](https://github.com/OPSnet/eac_logchecker.py)
 * [xld_logchecker.py](https://github.com/OPSnet/xld_logchecker.py)
 
 ```bash
-pip3 install chardet eac-logchecker xld-logchecker
+pip3 install cchardet eac-logchecker xld-logchecker
 ```
 
 ## Usage
@@ -43,15 +44,17 @@ require __DIR__ . '/vendor/autoload.php';
 use OrpheusNET\Logchecker\Logchecker;
 
 $logchecker = new Logchecker();
-$logchecker->new_file('/path/to/log/file');
-list($score, $details, $checksum_state, $log_text) = $logchecker->parse();
-print('Score: ' . $score . "\n");
-print('Checksum: ' . $checksum_state . "\n");
+$logchecker->newFile('/path/to/log/file');
+$logchecker->parse();
+print('Ripper   : ' . $logchecker->getRipper() . "\n");
+print('Version  : ' . $logchecker->getRipperVersion() . "\n");
+print('Score    : ' . $logchecker->getScore() . "\n");
+print('Checksum : ' . $logchecker->getChecksumState() . "\n");
 print("\nDetails:\n");
-foreach ($details as $detail) {
+foreach ($logchecker->getDetails() as $detail) {
     print("  {$detail}\n");
 }
-print("\nLog Text:\n{$log_text}");
+print("\nLog Text:\n\n{$logchecker->getLog()}");
 ```
 
 ## Building
