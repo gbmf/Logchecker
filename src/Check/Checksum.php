@@ -8,18 +8,18 @@ use Symfony\Component\Process\Process;
 
 class Checksum
 {
-    public const CHECKSUM_OK = 'checksum_ok';
-    public const CHECKSUM_INVALID = 'checksum_invalid';
-    public const CHECKSUM_MISSING = 'checksum_missing';
+    const CHECKSUM_OK = 'checksum_ok';
+    const CHECKSUM_INVALID = 'checksum_invalid';
+    const CHECKSUM_MISSING = 'checksum_missing';
 
-    public const EAC_LOGCHECKER = 'eac_logchecker';
-    public const XLD_LOGCHECKER = 'xld_logchecker';
+    const EAC_LOGCHECKER = 'eac_logchecker';
+    const XLD_LOGCHECKER = 'xld_logchecker';
 
     /**
      * Validates a given log, returning a string representing its state.
      * See possible values above.
      */
-    public static function validate(string $logPath, string $ripper): string
+    public static function validate($logPath, $ripper)
     {
         if ($ripper === Ripper::WHIPPER) {
             $log = trim(file_get_contents($logPath));
@@ -63,7 +63,7 @@ class Checksum
         return static::CHECKSUM_OK;
     }
 
-    public static function logcheckerExists(string $ripper): bool
+    public static function logcheckerExists($ripper)
     {
         if ($ripper === Ripper::WHIPPER) {
             return true;

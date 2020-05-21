@@ -10,7 +10,7 @@ class FileNotFoundException extends \RuntimeException
     /**
      * @param string $path The path to the file that was not found
      */
-    public function __construct(string $path)
+    public function __construct($path)
     {
         parent::__construct("The file '{$path}' does not exist");
     }

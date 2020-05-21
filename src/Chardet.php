@@ -45,7 +45,7 @@ class Chardet
     /**
      * @throws \Exception
      */
-    public function analyze($filename): array
+    public function analyze($filename)
     {
         if (!file_exists($filename)) {
             throw new FileNotFoundException($filename);

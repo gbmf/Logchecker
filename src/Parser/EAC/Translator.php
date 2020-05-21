@@ -1,17 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
 namespace OrpheusNET\Logchecker\Parser\EAC;
 
-use OrpheusNET\Logchecker\Exception\{
-    InvalidFileException,
-    UnknownLanguageException
-};
+use OrpheusNET\Logchecker\Exception\InvalidFileException;
+use OrpheusNET\Logchecker\Exception\UnknownLanguageException;
 
 class Translator
 {
-    public static function translate(string $log, string $language_code): string
+    public static function translate($log, $language_code)
     {
         if ($language_code === 'en') {
             return $log;
@@ -48,7 +44,7 @@ class Translator
         return $log;
     }
 
-    public static function getLanguage(string $log): array
+    public static function getLanguage($log)
     {
         $languages = json_decode(
             file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . 'languages' . DIRECTORY_SEPARATOR . 'master.json'),

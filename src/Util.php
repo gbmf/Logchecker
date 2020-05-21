@@ -4,7 +4,7 @@ namespace OrpheusNET\Logchecker;
 
 class Util
 {
-    public static function commandExists(string $cmd)
+    public static function commandExists($cmd)
     {
         $where = substr(strtolower(PHP_OS), 0, 3) === 'win' ? 'where' : 'command -v';
 
@@ -12,7 +12,7 @@ class Util
         return $return_var === 0;
     }
 
-    public static function decodeEncoding(string $log, string $logPath): string
+    public static function decodeEncoding($log, $logPath)
     {
         try {
             $chardet = new Chardet();

@@ -56,7 +56,7 @@ class Logchecker
         );
     }
 
-    public function getLog(): string
+    public function getLog()
     {
         return $this->log;
     }
@@ -64,14 +64,14 @@ class Logchecker
     /**
      * @param string $LogPath path to log file on local filesystem
      */
-    public function newFile(string $LogPath): void
+    public function newFile($LogPath)
     {
         $this->reset();
         $this->logPath = $LogPath;
         $this->log = file_get_contents($this->logPath);
     }
 
-    private function reset(): void
+    private function reset()
     {
         $this->logPath = null;
         $this->logs = array();
@@ -97,12 +97,12 @@ class Logchecker
         $this->XLDSecureRipper = false;
     }
 
-    public function validateChecksum(bool $Bool): void
+    public function validateChecksum($Bool)
     {
         $this->ValidateChecksum = $Bool;
     }
 
-    public function parse(): void
+    public function parse()
     {
         try {
             $this->log = Util::decodeEncoding($this->log, $this->logPath);
@@ -128,7 +128,7 @@ class Logchecker
         }
     }
 
-    private function whipperParse(): void
+    private function whipperParse()
     {
         if (preg_match('/whipper ([0-9]+\.[0-9]+\.[0-9])/', $this->log, $matches)) {
             if (version_compare('0.7.3', $matches[1]) === 1) {
@@ -1458,7 +1458,9 @@ class Logchecker
             $MatchedDrives[$i] = ['drives' => [], 'offsets' => []];
         }
 
-        foreach ($this->AllDrives as [$Drive, $Offset]) {
+        foreach ($this->AllDrives as $allDrive) {
+            $Drive = $allDrive[0];
+            $Offset = $allDrive[1];
             $Distance = levenshtein($Drive, $DriveName);
             if ($Distance < LOGCHECKER_LEVENSTEIN_DISTANCE + 1) {
                 $MatchedDrives[$Distance]['drives'][] = $Drive;
@@ -1989,37 +1991,37 @@ class Logchecker
         return $this->ripperVersion;
     }
 
-    public function getScore(): int
+    public function getScore()
     {
         return $this->Score;
     }
 
-    public function getDetails(): array
+    public function getDetails()
     {
         return $this->Details;
     }
 
-    public function getChecksumState(): string
+    public function getChecksumState()
     {
         return $this->checksumStatus;
     }
 
-    public function getLanguage(): string
+    public function getLanguage()
     {
         return $this->language;
     }
 
-    public function isCombinedLog(): bool
+    public function isCombinedLog()
     {
         return !is_null($this->Combined) && $this->Combined > 0;
     }
 
-    public static function getAcceptValues(): string
+    public static function getAcceptValues()
     {
         return ".txt,.TXT,.log,.LOG";
     }
 
-    public static function getLogcheckerVersion(): string
+    public static function getLogcheckerVersion()
     {
         $composer = json_decode(
             file_get_contents(implode(DIRECTORY_SEPARATOR, [__DIR__, '..', 'composer.json'])),

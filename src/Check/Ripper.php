@@ -1,19 +1,17 @@
 <?php
 
-declare(strict_types=1);
-
 namespace OrpheusNET\Logchecker\Check;
 
 use OrpheusNET\Logchecker\Exception\UnknownRipperException;
 
 class Ripper
 {
-    public const UNKNOWN = 'unknown';
-    public const WHIPPER = 'whipper';
-    public const XLD = 'XLD';
-    public const EAC = 'EAC';
+    const UNKNOWN = 'unknown';
+    const WHIPPER = 'whipper';
+    const XLD = 'XLD';
+    const EAC = 'EAC';
 
-    public static function getRipper(string $log): string
+    public static function getRipper($log)
     {
         if (strpos($log, "Log created by: whipper") !== false) {
             return Ripper::WHIPPER;

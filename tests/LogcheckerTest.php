@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 
 class LogcheckerTest extends TestCase
 {
-    public function logDataProvider(): array
+    public function logDataProvider()
     {
         $return = [];
         foreach ([Ripper::EAC, Ripper::XLD, Ripper::WHIPPER] as $ripper) {
@@ -24,7 +24,7 @@ class LogcheckerTest extends TestCase
     /**
      * @dataProvider logDataProvider
      */
-    public function testLogchecker(string $ripper, string $filePath, string $fileName): void
+    public function testLogchecker($ripper, $filePath, $fileName)
     {
         $basePath = implode(DIRECTORY_SEPARATOR, [__DIR__, 'logs', strtolower($ripper)]);
         if (!Checksum::logcheckerExists($ripper)) {
@@ -57,12 +57,12 @@ class LogcheckerTest extends TestCase
         $this->assertStringEqualsFile($htmlFile, $logchecker->getLog());
     }
 
-    public function testGetAcceptValues(): void
+    public function testGetAcceptValues()
     {
         $this->assertSame(".txt,.TXT,.log,.LOG", Logchecker::getAcceptValues());
     }
 
-    public function testGetLogcheckerVersion(): void
+    public function testGetLogcheckerVersion()
     {
         $composer = json_decode(
             file_get_contents(implode(DIRECTORY_SEPARATOR, [__DIR__, '..', 'composer.json'])),
@@ -71,7 +71,7 @@ class LogcheckerTest extends TestCase
         $this->assertSame($composer['version'], Logchecker::getLogcheckerVersion());
     }
 
-    public function testCheckUnknownLog(): void
+    public function testCheckUnknownLog()
     {
         $logchecker = new Logchecker();
         $logchecker->newFile(implode(DIRECTORY_SEPARATOR, [__DIR__, 'LogcheckerTest.php']));

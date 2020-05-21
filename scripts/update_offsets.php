@@ -30,7 +30,7 @@ if ($item === null) {
 }
 
 $drives = [];
-$count = $item->childNodes->count();
+$count = count($item->childNodes);
 for ($i = 2; $i < $count; $i++) {
     $childNode = $item->childNodes->item($i);
     if ($childNode === null) {

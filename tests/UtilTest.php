@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace OrpheusNET\Logchecker;
 
 use FilesystemIterator;
@@ -9,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 class UtilTest extends TestCase
 {
-    public function commandExistsDataProvider(): array
+    public function commandExistsDataProvider()
     {
         return [
             ['cd', true],
@@ -25,12 +23,14 @@ class UtilTest extends TestCase
         $this->assertSame($exists, Util::commandExists($command));
     }
 
-    public function decodeLogDataProvider(): array
+    public function decodeLogDataProvider()
     {
         $logPath = implode(DIRECTORY_SEPARATOR, [__DIR__, 'logs', 'eac', 'originals']);
         $return = [];
         foreach (new FilesystemIterator($logPath) as $file) {
-            [$language, $logName] = explode('_', $file->getFilename());
+            $result = explode('_', $file->getFilename());
+            $language = $result[0];
+            $logName = $result[1];
             if (!file_exists(implode(DIRECTORY_SEPARATOR, [$logPath, '..', 'utf8', $language]))) {
                 continue;
             }
@@ -42,7 +42,7 @@ class UtilTest extends TestCase
     /**
      * @dataProvider decodeLogDataProvider
      */
-    public function testDecodeLog(string $logPath, string $language, string $logName)
+    public function testDecodeLog($logPath, $language, $logName)
     {
         $testLog = implode(DIRECTORY_SEPARATOR, [__DIR__, 'logs', 'eac', 'utf8', $language, $logName]);
         $this->assertStringEqualsFile($testLog, Util::decodeEncoding(file_get_contents($logPath), $logPath));
